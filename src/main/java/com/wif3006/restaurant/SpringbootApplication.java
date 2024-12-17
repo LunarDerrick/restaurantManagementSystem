@@ -20,6 +20,8 @@ public class SpringbootApplication {
     public static void main(String[] args) {
         // TODO code application logic here
         SpringApplication.run(SpringbootApplication.class, args);
+        
+        System.out.println("hello world");
     }
     
 }
