@@ -1,2 +1,40 @@
-/target/generated-test-sources/
-/target/generated-sources/
+# NetBeans
+/.nb-gradle
+/.nbproject
+/target/
+/build/
+/.idea/
+*.log
+
+# Compiled class files
+*.class
+
+# JARs and other artifacts
+*.jar
+*.war
+*.ear
+
+# User-specific files
+nbbuild/
+nbdist/
+*.swp
+*.swo
+
+# Maven
+/.mvn/
+/target/
+/.idea/
+/*.iml
+
+# Eclipse project files
+/.project
+/.classpath
+/.settings/
+
+# OS-specific files
+.DS_Store      # macOS
+Thumbs.db      # Windows
+
+# NetBeans specific files
+/nbbuild/
+/nbdist/

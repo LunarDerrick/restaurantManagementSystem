@@ -6,12 +6,14 @@ package com.wif3006.restaurant;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  *
  * @author derri
  */
 @SpringBootApplication
+@EnableAsync
 public class SpringbootApplication {
 
     /**
@@ -22,7 +24,6 @@ public class SpringbootApplication {
         SpringApplication.run(SpringbootApplication.class, args);
         
         System.out.println("\nWELCOME TO RESTAURANT MANAGEMENT SYSTEM\n");
-        System.out.println("test commit");
         System.exit(0);
     }
     

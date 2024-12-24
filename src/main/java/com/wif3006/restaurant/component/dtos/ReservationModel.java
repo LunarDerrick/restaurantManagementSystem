@@ -4,12 +4,14 @@
  */
 package com.wif3006.restaurant.component.dtos;
 
+import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
  *
  * @author derri
  */
+@Data
 public class ReservationModel {
     private Long id;
     private String customerName;

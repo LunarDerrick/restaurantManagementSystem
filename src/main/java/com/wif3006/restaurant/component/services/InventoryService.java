@@ -5,6 +5,7 @@
 package com.wif3006.restaurant.component.services;
 
 import com.wif3006.restaurant.component.dtos.InventoryModel;
+import com.wif3006.restaurant.component.dtos.MenuModel;
 import java.util.List;
 
 /**
@@ -18,5 +19,5 @@ public interface InventoryService {
     List<InventoryModel> getInventoryListByFilter(String filter, String sortedBy, String order);
     
     String alertLowStock();
-    void reduceStockOnOrder();
+    void reduceStockOnOrder(List<MenuModel> orderedItems);
 }

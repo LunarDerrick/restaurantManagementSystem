@@ -4,10 +4,13 @@
  */
 package com.wif3006.restaurant.component.dtos;
 
+import lombok.Data;
+
 /**
  *
  * @author derri
  */
+@Data
 public class TableModel {
     private Long id;
     private int seatingCapacity;

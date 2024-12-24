@@ -7,11 +7,14 @@ package com.wif3006.restaurant.component.repositories;
 import com.wif3006.restaurant.component.entities.InventoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  *
  * @author derri
  */
+@Repository
 public interface InventoryRepository extends JpaRepository<InventoryEntity, Long> {
-    // Repository handles functions from Service that requires custom SQL queries.
+    // Custom query to find items with low stock
+    List<InventoryEntity> findByQuantityLessThan(Integer threshold);
 }

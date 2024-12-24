@@ -4,10 +4,15 @@
  */
 package com.wif3006.restaurant.component.controllers;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 /**
  *
  * @author derri
  */
-public class RestaurantController {
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
     
 }

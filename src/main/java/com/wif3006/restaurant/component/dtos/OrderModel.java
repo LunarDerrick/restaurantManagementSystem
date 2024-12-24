@@ -4,12 +4,14 @@
  */
 package com.wif3006.restaurant.component.dtos;
 
+import lombok.Data;
 import java.util.List;
 
 /**
  *
  * @author derri
  */
+@Data
 public class OrderModel {
     private Long id;
     private String status;
