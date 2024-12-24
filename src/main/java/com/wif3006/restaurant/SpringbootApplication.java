@@ -22,6 +22,7 @@ public class SpringbootApplication {
         SpringApplication.run(SpringbootApplication.class, args);
         
         System.out.println("\nWELCOME TO RESTAURANT MANAGEMENT SYSTEM\n");
+        System.out.println("test commit");
         System.exit(0);
     }
     
