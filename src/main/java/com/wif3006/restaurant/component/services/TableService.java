@@ -17,6 +17,7 @@ public interface TableService {
     Boolean deleteTable(Long id);
     List<TableModel> getTableListByFilter(String filter, String sortedBy, String order);
     
-    Boolean checkAvailability();
+    // default getter/setter for isAvailable field
+    // Boolean checkAvailability();
     Boolean assignTable();
 }

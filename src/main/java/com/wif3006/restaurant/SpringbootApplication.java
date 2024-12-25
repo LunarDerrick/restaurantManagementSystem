@@ -23,8 +23,7 @@ public class SpringbootApplication {
         // TODO code application logic here
         SpringApplication.run(SpringbootApplication.class, args);
         
-        System.out.println("\nWELCOME TO RESTAURANT MANAGEMENT SYSTEM\n");
-        System.exit(0);
+        System.out.println("\nWELCOME TO RESTAURANT MANAGEMENT SYSTEM");
     }
     
 }

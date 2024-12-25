@@ -97,6 +97,7 @@ public class MenuServiceImpl implements MenuService {
                 MenuModel menuModel = new MenuModel();
                 menuModel.setId(menuEntity.getId());
                 menuModel.setName(menuEntity.getName());
+                menuModel.setDescription(menuEntity.getDescription());
                 menuModel.setPrice(menuEntity.getPrice());
                 menuModel.setCategory(menuEntity.getCategory());
                 return menuModel;

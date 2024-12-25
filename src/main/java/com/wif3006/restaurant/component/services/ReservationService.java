@@ -5,6 +5,7 @@
 package com.wif3006.restaurant.component.services;
 
 import com.wif3006.restaurant.component.dtos.ReservationModel;
+import com.wif3006.restaurant.component.dtos.TableModel;
 import java.util.List;
 
 /**
@@ -16,8 +17,8 @@ public interface ReservationService {
     Boolean updateReservation(Long id, ReservationModel reservationModel);
     Boolean deleteReservation(Long id);
     List<ReservationModel> getReservationListByFilter(String filter, String sortedBy, String order);
+    // bookTable    
     // manageReservation()
     
-    Boolean bookTable();
-    List<ReservationModel> viewAvailableTables();
+    List<TableModel> viewAvailableTables();
 }
