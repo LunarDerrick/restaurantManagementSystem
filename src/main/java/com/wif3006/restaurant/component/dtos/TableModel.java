@@ -14,5 +14,5 @@ import lombok.Data;
 public class TableModel {
     private Long id;
     private int seatingCapacity;
-    private boolean isAvailable;
+    private Boolean isAvailable;
 }

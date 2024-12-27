@@ -24,5 +24,5 @@ public class TableEntity {
     private int seatingCapacity;
     
     @Column(name = "is_available", nullable = false)
-    private boolean isAvailable;
+    private Boolean isAvailable;
 }

@@ -30,12 +30,14 @@ public class MenuServiceImpl implements MenuService {
         try {
             MenuEntity menuEntity = new MenuEntity();
             menuEntity.setName(menuModel.getName());
+            menuEntity.setDescription(menuModel.getDescription());
             menuEntity.setPrice(menuModel.getPrice());
             menuEntity.setCategory(menuModel.getCategory());
             menuRepository.save(menuEntity); 
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error adding menu: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to add menu");
         }
     }
 
@@ -46,15 +48,17 @@ public class MenuServiceImpl implements MenuService {
             if (optionalMenuEntity.isPresent()) {
                 MenuEntity menuEntity = optionalMenuEntity.get();
                 menuEntity.setName(menuModel.getName());
+                menuEntity.setDescription(menuModel.getDescription());
                 menuEntity.setPrice(menuModel.getPrice());
                 menuEntity.setCategory(menuModel.getCategory());
-                menuRepository.save(menuEntity); 
-                return true;
+                menuRepository.save(menuEntity);
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Menu not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating menu: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to update menu");
         }
     }
 
@@ -64,12 +68,13 @@ public class MenuServiceImpl implements MenuService {
             Optional<MenuEntity> optionalMenuEntity = menuRepository.findById(id);
             if (optionalMenuEntity.isPresent()) {
                 menuRepository.delete(optionalMenuEntity.get());
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Menu not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error deleting menu: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to delete menu");
         }
     }
 

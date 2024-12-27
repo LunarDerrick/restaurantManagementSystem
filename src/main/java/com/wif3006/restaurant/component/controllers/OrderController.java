@@ -12,6 +12,7 @@ import com.wif3006.restaurant.component.services.MenuService;
 import com.wif3006.restaurant.component.services.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,8 +44,8 @@ public class OrderController {
     
     //POST /api/orders: Add a new order.
     @PostMapping
-    public Boolean addOrder(@RequestBody OrderModel orderModel) {
-        return orderService.addOrder(orderModel);
+    public ResponseEntity<Boolean> addOrder(@RequestBody OrderModel orderModel) {
+        return ResponseEntity.ok(orderService.addOrder(orderModel));
     }
     
     //PUT /api/orders/{id}: Update an existing order.
@@ -82,20 +83,20 @@ public class OrderController {
 
     //POST /api/orders/menu: Add a menu item.
     @PostMapping("/menu")
-    public Boolean addMenu(@RequestBody MenuModel menuModel) {
-        return menuService.addMenu(menuModel);
+    public ResponseEntity<Boolean> addMenu(@RequestBody MenuModel menuModel) {    
+        return ResponseEntity.ok(menuService.addMenu(menuModel));
     }
     
     //PUT /api/orders/menu/{id}: Update a menu item.
     @PutMapping("/menu/{id}")
-    public Boolean updateMenu(@PathVariable Long id, @RequestBody MenuModel menuModel) {
-        return menuService.updateMenu(id, menuModel);
+    public ResponseEntity<Boolean> updateMenu(@PathVariable Long id, @RequestBody MenuModel menuModel) {
+        return ResponseEntity.ok(menuService.updateMenu(id, menuModel));
     }
     
     //DELETE /api/orders/menu/{id}: Delete a menu item.
     @DeleteMapping("/menu/{id}")
-    public Boolean deleteMenu(@PathVariable Long id) {
-        return menuService.deleteMenu(id);
+    public ResponseEntity<Boolean> deleteMenu(@PathVariable Long id) {
+        return ResponseEntity.ok(menuService.deleteMenu(id));
     }
     
     //GET /api/orders/menu: Get a list of menu items.
@@ -110,20 +111,20 @@ public class OrderController {
     
     //POST /api/orders/inventory: Add inventory items.
     @PostMapping("/inventory")
-    public Boolean addInventory(@RequestBody InventoryModel inventoryModel) {
-        return inventoryService.addInventory(inventoryModel);
+    public ResponseEntity<Boolean> addInventory(@RequestBody InventoryModel inventoryModel) {
+        return ResponseEntity.ok(inventoryService.addInventory(inventoryModel));
     }
     
     //PUT /api/orders/inventory/{id}: Update inventory items.
     @PutMapping("/inventory/{id}")
-    public Boolean updateInventory(@PathVariable Long id, @RequestBody InventoryModel inventoryModel) {
-        return inventoryService.updateInventory(id, inventoryModel);
+    public ResponseEntity<Boolean> updateInventory(@PathVariable Long id, @RequestBody InventoryModel inventoryModel) {
+        return ResponseEntity.ok(inventoryService.updateInventory(id, inventoryModel));
     }
     
     //DELETE /api/orders/inventory/{id}: Delete inventory items.
     @DeleteMapping("/inventory/{id}")
-    public Boolean deleteInventory(@PathVariable Long id) {
-        return inventoryService.deleteInventory(id);
+    public ResponseEntity<Boolean> deleteInventory(@PathVariable Long id) {
+        return ResponseEntity.ok(inventoryService.deleteInventory(id));
     }
     
     //GET /api/orders/inventory: Get a list of inventory items.

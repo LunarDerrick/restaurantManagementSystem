@@ -41,11 +41,13 @@ public class OrderServiceImpl implements OrderService {
                 menuEntity.setPrice(menuModel.getPrice());
                 return menuEntity;
             }).collect(Collectors.toList()));
+            // TODO: compute total price
             orderEntity.setTotalPrice(orderModel.getTotalPrice());
             orderRepository.save(orderEntity);
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error adding order: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to add order");
         }
     }
 

@@ -39,12 +39,12 @@ public class ReservationServiceImpl implements ReservationService {
             TableEntity table = tableRepository.findById(reservationModel.getTableId())
                     .orElseThrow(() -> new IllegalArgumentException("Table not found"));
 
-            if (!table.isAvailable()) {
+            if (!table.getIsAvailable()) {
                 throw new IllegalStateException("Table is already booked");
             }
 
             // Mark the table as booked
-            table.setAvailable(false);
+            table.setIsAvailable(false);
             tableRepository.save(table);
             
             // Create reservation
@@ -59,9 +59,10 @@ public class ReservationServiceImpl implements ReservationService {
             }
             reservationEntity.setPartySize(reservationModel.getPartySize());
             reservationRepository.save(reservationEntity);
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error adding reservation: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to add reservation");
         }
     }
 
@@ -73,6 +74,7 @@ public class ReservationServiceImpl implements ReservationService {
                 ReservationEntity reservationEntity = reservationOptional.get();
                 reservationEntity.setCustomerName(reservationModel.getCustomerName());
                 reservationEntity.setDateTime(reservationModel.getDateTime());
+                // TODO: account for changing to new tables/same tables
                 Optional<TableEntity> tableOptional = tableRepository.findById(reservationModel.getTableId());
                 if (tableOptional.isPresent()) {
                     reservationEntity.setTable(tableOptional.get());
@@ -81,12 +83,13 @@ public class ReservationServiceImpl implements ReservationService {
                 }
                 reservationEntity.setPartySize(reservationModel.getPartySize());
                 reservationRepository.save(reservationEntity);
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Reservation not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating reservation: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to update reservation");
         }
     }
 
@@ -95,13 +98,28 @@ public class ReservationServiceImpl implements ReservationService {
         try {
             Optional<ReservationEntity> optionalReservationEntity = reservationRepository.findById(id);
             if (optionalReservationEntity.isPresent()) {
+                // Retrieve the table related to the reservation
+                ReservationEntity reservationEntity = optionalReservationEntity.get();
+                Optional<TableEntity> optionalTableEntity = Optional.ofNullable(reservationEntity.getTable());
+                if (optionalTableEntity.isPresent()) {
+                    TableEntity tableEntity = optionalTableEntity.get();
+
+                    // Mark the table as available (true)
+                    tableEntity.setIsAvailable(true);
+                    tableRepository.save(tableEntity);  // Save the updated table status
+                } else {
+                    throw new IllegalArgumentException("Table associated with the reservation not found");
+                }
+
+                // Delete the reservation
                 reservationRepository.delete(optionalReservationEntity.get());
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Reservation not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating reservation: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to update reservation");
         }
     }
 
@@ -162,12 +180,12 @@ public class ReservationServiceImpl implements ReservationService {
 
             // Filter available tables and map them to TableModel
             return allTables.stream()
-                    .filter(TableEntity::isAvailable) // Check if the table is available
+                    .filter(TableEntity::getIsAvailable) // Check if the table is available
                     .map(table -> {
                         TableModel model = new TableModel();
                         model.setId(table.getId());
                         model.setSeatingCapacity(table.getSeatingCapacity()); // Assuming `capacity` represents seating capacity
-                        model.setAvailable(table.isAvailable());
+                        model.setIsAvailable(table.getIsAvailable());
                         return model;
                     })
                     .collect(Collectors.toList());

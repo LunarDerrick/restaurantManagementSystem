@@ -29,11 +29,13 @@ public class TableServiceImpl implements TableService {
         try {
             TableEntity tableEntity = new TableEntity();
             tableEntity.setSeatingCapacity(tableModel.getSeatingCapacity());
-            tableEntity.setAvailable(tableModel.isAvailable());
+            System.out.println("isAvailable: " + tableModel.getIsAvailable());
+            tableEntity.setIsAvailable(tableModel.getIsAvailable());
             tableRepository.save(tableEntity);
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error adding table: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to add table");
         }
     }
 
@@ -44,14 +46,15 @@ public class TableServiceImpl implements TableService {
             if (optionalTableEntity.isPresent()) {
                 TableEntity tableEntity = optionalTableEntity.get();
                 tableEntity.setSeatingCapacity(tableModel.getSeatingCapacity());
-                tableEntity.setAvailable(tableModel.isAvailable());
+                tableEntity.setIsAvailable(tableModel.getIsAvailable());
                 tableRepository.save(tableEntity);
-                return true;
+                return Boolean.TRUE;
             } else {
-                return false; // Table not found
+                throw new RuntimeException("Table not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating table: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to update table");
         }
     }
 
@@ -61,12 +64,13 @@ public class TableServiceImpl implements TableService {
             Optional<TableEntity> optionalTableEntity = tableRepository.findById(id);
             if (optionalTableEntity.isPresent()) {
                 tableRepository.deleteById(id);
-                return true;
+                return Boolean.TRUE;
             } else {
-                return false; // Table not found
+                throw new RuntimeException("Table not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error deleting table: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to delete table");
         }
     }
 
@@ -78,11 +82,11 @@ public class TableServiceImpl implements TableService {
             // Filter logic (e.g., based on availability or seating capacity)
             if ("available".equalsIgnoreCase(filter)) {
                 tableEntities = tableRepository.findAll().stream()
-                        .filter(TableEntity::isAvailable)
+                        .filter(TableEntity::getIsAvailable)
                         .toList();
             } else if ("unavailable".equalsIgnoreCase(filter)) {
                 tableEntities = tableRepository.findAll().stream()
-                        .filter(table -> !table.isAvailable())
+                        .filter(table -> !table.getIsAvailable())
                         .toList();
             } else {
                 tableEntities = tableRepository.findAll();
@@ -100,7 +104,7 @@ public class TableServiceImpl implements TableService {
                 TableModel model = new TableModel();
                 model.setId(entity.getId());
                 model.setSeatingCapacity(entity.getSeatingCapacity());
-                model.setAvailable(entity.isAvailable());
+                model.setIsAvailable(entity.getIsAvailable());
                 return model;
             }).toList();
         } catch (Exception e) {
@@ -113,12 +117,12 @@ public class TableServiceImpl implements TableService {
         try {
             // Find the first available table and mark it as unavailable
             Optional<TableEntity> optionalTableEntity = tableRepository.findAll().stream()
-                    .filter(TableEntity::isAvailable)
+                    .filter(TableEntity::getIsAvailable)
                     .findFirst();
 
             if (optionalTableEntity.isPresent()) {
                 TableEntity tableEntity = optionalTableEntity.get();
-                tableEntity.setAvailable(false);
+                tableEntity.setIsAvailable(false);
                 tableRepository.save(tableEntity);
                 return true;
             } else {

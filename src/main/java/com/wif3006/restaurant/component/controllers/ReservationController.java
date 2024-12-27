@@ -10,6 +10,7 @@ import com.wif3006.restaurant.component.services.ReservationService;
 import com.wif3006.restaurant.component.services.TableService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,20 +39,20 @@ public class ReservationController {
     
     // POST /api/reservations: Add a new reservation
     @PostMapping
-    public Boolean addReservation(@RequestBody ReservationModel reservationModel) {
-        return reservationService.addReservation(reservationModel);
+    public ResponseEntity<Boolean> addReservation(@RequestBody ReservationModel reservationModel) {
+        return ResponseEntity.ok(reservationService.addReservation(reservationModel));
     }
 
     // PUT /api/reservations/{id}: Update an existing reservation
     @PutMapping("/{id}")
-    public Boolean updateReservation(@PathVariable Long id, @RequestBody ReservationModel reservationModel) {
-        return reservationService.updateReservation(id, reservationModel);
+    public ResponseEntity<Boolean> updateReservation(@PathVariable Long id, @RequestBody ReservationModel reservationModel) {
+        return ResponseEntity.ok(reservationService.updateReservation(id, reservationModel));
     }
 
     // DELETE /api/reservations/{id}: Delete a reservation
     @DeleteMapping("/{id}")
-    public Boolean deleteReservation(@PathVariable Long id) {
-        return reservationService.deleteReservation(id);
+    public ResponseEntity<Boolean> deleteReservation(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.deleteReservation(id));
     }
     
     // GET /api/reservations: Get a list of reservations, optionally with filters
@@ -71,20 +72,20 @@ public class ReservationController {
 
     // POST /api/reservations/tables: Add a new table
     @PostMapping("/tables")
-    public Boolean addTable(@RequestBody TableModel tableModel) {
-        return tableService.addTable(tableModel);
+    public ResponseEntity<Boolean> addTable(@RequestBody TableModel tableModel) {
+        return ResponseEntity.ok(tableService.addTable(tableModel));
     }
 
     // PUT /api/reservations/tables/{id}: Update an existing table
     @PutMapping("/tables/{id}")
-    public Boolean updateTable(@PathVariable Long id, @RequestBody TableModel tableModel) {
-        return tableService.updateTable(id, tableModel);
+    public ResponseEntity<Boolean> updateTable(@PathVariable Long id, @RequestBody TableModel tableModel) {
+        return ResponseEntity.ok(tableService.updateTable(id, tableModel));
     }
 
     // DELETE /api/reservations/tables/{id}: Delete a table
     @DeleteMapping("/tables/{id}")
-    public Boolean deleteTable(@PathVariable Long id) {
-        return tableService.deleteTable(id);
+    public ResponseEntity<Boolean> deleteTable(@PathVariable Long id) {
+        return ResponseEntity.ok(tableService.deleteTable(id));
     }
 
     // GET /api/reservations/tables: Get a list of tables, optionally with filters

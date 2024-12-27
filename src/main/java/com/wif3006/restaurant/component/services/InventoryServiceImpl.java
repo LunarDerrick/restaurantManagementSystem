@@ -34,9 +34,10 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryEntity.setQuantity(inventoryModel.getQuantity());
             inventoryEntity.setThreshold(inventoryModel.getThreshold());
             inventoryRepository.save(inventoryEntity);
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            return false;
+            System.err.println("Error adding inventory: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to add inventory");
         }
     }
 
@@ -50,12 +51,13 @@ public class InventoryServiceImpl implements InventoryService {
                 inventoryEntity.setQuantity(inventoryModel.getQuantity());
                 inventoryEntity.setThreshold(inventoryModel.getThreshold());
                 inventoryRepository.save(inventoryEntity); 
-                return true;
+                return Boolean.TRUE;
             } else {
-                throw new RuntimeException("Menu not found");
+                throw new RuntimeException("Inventory not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating inventory: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to update inventory");
         }
     }
 
@@ -65,12 +67,13 @@ public class InventoryServiceImpl implements InventoryService {
             Optional<InventoryEntity> optionalInventoryEntity = inventoryRepository.findById(id);
             if (optionalInventoryEntity.isPresent()) {
                 inventoryRepository.delete(optionalInventoryEntity.get());
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Inventory not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error deleting inventory: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to delete inventory");
         }
     }
 
