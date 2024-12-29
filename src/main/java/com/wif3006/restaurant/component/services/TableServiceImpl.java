@@ -111,26 +111,5 @@ public class TableServiceImpl implements TableService {
             return List.of(); // Return an empty list in case of an exception
         }
     }
-
-    @Override
-    public Boolean assignTable() {
-        try {
-            // Find the first available table and mark it as unavailable
-            Optional<TableEntity> optionalTableEntity = tableRepository.findAll().stream()
-                    .filter(TableEntity::getIsAvailable)
-                    .findFirst();
-
-            if (optionalTableEntity.isPresent()) {
-                TableEntity tableEntity = optionalTableEntity.get();
-                tableEntity.setIsAvailable(false);
-                tableRepository.save(tableEntity);
-                return true;
-            } else {
-                return false; // No available tables
-            }
-        } catch (Exception e) {
-            return false;
-        }
-    }
     
 }

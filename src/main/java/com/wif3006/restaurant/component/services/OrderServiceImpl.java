@@ -4,10 +4,10 @@
  */
 package com.wif3006.restaurant.component.services;
 
-import com.wif3006.restaurant.component.dtos.MenuModel;
 import com.wif3006.restaurant.component.dtos.OrderModel;
 import com.wif3006.restaurant.component.entities.MenuEntity;
 import com.wif3006.restaurant.component.entities.OrderEntity;
+import com.wif3006.restaurant.component.repositories.MenuRepository;
 import com.wif3006.restaurant.component.repositories.OrderRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import javax.persistence.EntityManager;
 
 /**
  *
@@ -29,21 +31,35 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
     
+    @Autowired
+    private MenuRepository menuRepository;
+    
+    @Autowired
+    private EntityManager entityManager;
+    
     @Override
     public Boolean addOrder(OrderModel orderModel) {
         try {
+            // Fetch menu entities based on item names in the order model
+            List<MenuEntity> menuEntities = orderModel.getItems().stream()
+                .map(itemName -> menuRepository.findByName(itemName) // Find MenuEntity by name
+                    .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName))) 
+                .collect(Collectors.toList());
+
+            // Calculate the total price
+            float totalPrice = menuEntities.stream()
+                .map(MenuEntity::getPrice)
+                .reduce(0f, Float::sum);
+            
             OrderEntity orderEntity = new OrderEntity();
-            orderEntity.setStatus(orderModel.getStatus());
-            orderEntity.setItems(orderModel.getItems().stream().map(menuModel -> {
-                MenuEntity menuEntity = new MenuEntity();
-                menuEntity.setId(menuModel.getId());
-                menuEntity.setName(menuModel.getName());
-                menuEntity.setPrice(menuModel.getPrice());
-                return menuEntity;
-            }).collect(Collectors.toList()));
-            // TODO: compute total price
-            orderEntity.setTotalPrice(orderModel.getTotalPrice());
+            orderEntity.setStatus("placed"); // fixed starting status
+            orderEntity.setItems(orderModel.getItems());
+            orderEntity.setTotalPrice(totalPrice);
             orderRepository.save(orderEntity);
+            
+            // Initiate the asynchronous status update after saving the order
+            updateOrderStatusAfterDelay(orderEntity.getId());
+        
             return Boolean.TRUE;
         } catch (Exception e) {
             System.err.println("Error adding order: " + e.getMessage());
@@ -57,22 +73,29 @@ public class OrderServiceImpl implements OrderService {
             Optional<OrderEntity> optionalOrder = orderRepository.findById(id);
             if (optionalOrder.isPresent()) {
                 OrderEntity orderEntity = optionalOrder.get();
-                orderEntity.setStatus(orderModel.getStatus());
-                orderEntity.setItems(orderModel.getItems().stream().map(menuModel -> {
-                    MenuEntity menuEntity = new MenuEntity();
-                    menuEntity.setId(menuModel.getId());
-                    menuEntity.setName(menuModel.getName());
-                    menuEntity.setPrice(menuModel.getPrice());
-                    return menuEntity;
-                }).collect(Collectors.toList()));
-                orderEntity.setTotalPrice(orderModel.getTotalPrice());
+                
+                // Fetch menu entities based on item names in the order model
+                List<MenuEntity> menuEntities = orderModel.getItems().stream()
+                    .map(itemName -> menuRepository.findByName(itemName) // Find MenuEntity by name
+                        .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName))) 
+                    .collect(Collectors.toList());
+
+                // Calculate the total price
+                float totalPrice = menuEntities.stream()
+                    .map(MenuEntity::getPrice)
+                    .reduce(0f, Float::sum);
+                
+                // Update the order with the new status, items, and total price
+                orderEntity.setItems(orderModel.getItems());  // Assuming items are a list of names
+                orderEntity.setTotalPrice(totalPrice);
                 orderRepository.save(orderEntity);
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Order not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error updating order: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to update order");
         }
     }
 
@@ -82,12 +105,13 @@ public class OrderServiceImpl implements OrderService {
             Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(id);
             if (optionalOrderEntity.isPresent()) {
                 orderRepository.delete(optionalOrderEntity.get());
-                return true;
+                return Boolean.TRUE;
             } else {
                 throw new RuntimeException("Order not found");
             }
         } catch (Exception e) {
-            return false;
+            System.err.println("Error deleting order: " + e.getMessage());
+            throw new IllegalArgumentException("Failed to delete order");
         }
     }
 
@@ -110,18 +134,10 @@ public class OrderServiceImpl implements OrderService {
                     
         return orderEntities.stream().map(orderEntity -> {
             // Explicitly map MenuEntity to MenuModel
-            List<MenuModel> menuModels = orderEntity.getItems().stream().map(menuEntity -> {
-                MenuModel menuModel = new MenuModel();
-                menuModel.setId(menuEntity.getId());
-                menuModel.setName(menuEntity.getName());
-                menuModel.setPrice(menuEntity.getPrice());
-                return menuModel;
-            }).collect(Collectors.toList());
-            
             OrderModel model = new OrderModel();
             model.setId(orderEntity.getId());
             model.setStatus(orderEntity.getStatus());
-            model.setItems(menuModels); // Set the mapped List<MenuModel>
+            model.setItems(orderEntity.getItems());
             model.setTotalPrice(orderEntity.getTotalPrice());
             return model;
         }).collect(Collectors.toList());
@@ -146,33 +162,62 @@ public class OrderServiceImpl implements OrderService {
             OrderEntity orderEntity = orderRepository.findById(id).orElseThrow();
 
             // Set the order status to "Cancelled"
-            orderEntity.setStatus("Cancelled");
+            orderEntity.setStatus("cancelled");
 
             // Optionally, you can also cancel individual items if needed
             // orderEntity.getItems().forEach(item -> item.setStatus("Cancelled"));
 
             // Save the updated order entity
             orderRepository.save(orderEntity);
-            return true;
+            return Boolean.TRUE;
         } catch (Exception e) {
-            // Handle exceptions (e.g., order not found)
-            return false;
+            System.err.println("Error cancelling order: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to cancel order");
         }
     }
     
+    @Transactional
     @Async
-    public CompletableFuture<Void> updateOrderStatusAfterDelay(Long orderId) {
-        try {            
-            Thread.sleep(10000); // Simulate delay in millis
+    private CompletableFuture<Void> updateOrderStatusAfterDelay(Long orderId) {
+        try {
+            // Define the statuses to progress through
+            List<String> statuses = List.of("placed", "preparing", "delivering", "served");
 
-            OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-            // Update status after the delay
-            orderEntity.setStatus("In Progress");
-            orderRepository.save(orderEntity);
+            for (String nextStatus : statuses) {
+                // Fetch the current order entity from the database
+                OrderEntity orderEntity = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        } catch (InterruptedException | RuntimeException e) {
-            // Handle exceptions
+                // Explicitly refresh the entity to ensure the latest state
+                orderRepository.refreshOrder(orderId);
+            
+                // Check if the status is "cancelled"
+                if ("cancelled".equalsIgnoreCase(orderEntity.getStatus())) {
+                    break; // Exit the loop if the order is cancelled
+                }
+
+                // Update the status to the next progression
+                orderEntity.setStatus(nextStatus);
+                orderRepository.save(orderEntity);
+
+                // Simulate delay before moving to the next status
+                Thread.sleep(10000); // 10 seconds between each status update
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore interrupted state
+            System.err.println("Async process interrupted for Order ID: " + orderId);
+        } catch (RuntimeException e) {
+            System.err.println("Error updating order status for Order ID: " + orderId + ", " + e.getMessage());
         }
+
         return CompletableFuture.completedFuture(null);
+    }
+    
+    @Override
+    @Transactional
+    public void refreshOrder(Long orderId) {
+        OrderEntity orderEntity = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+        entityManager.refresh(orderEntity); // Refreshes the entity state from the database
     }
 }

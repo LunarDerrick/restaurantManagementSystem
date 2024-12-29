@@ -24,9 +24,9 @@ public class OrderEntity {
     @Column(name = "status", nullable = false)
     private String status;
     
-    @OneToMany(cascade = CascadeType.ALL) 
-    @JoinColumn(name = "order_id", referencedColumnName = "id") // Foreign key in the items table
-    private List<MenuEntity> items; // Represents the list of menu items in the order
+    @Column(name = "items", nullable = true) // Store as a single column in the table
+    @Convert(converter = StringListConverter.class) // Use the custom converter
+    private List<String> items; // Store menu names as a single string
     
     @Column(name = "total_price", nullable = false)
     private float totalPrice;

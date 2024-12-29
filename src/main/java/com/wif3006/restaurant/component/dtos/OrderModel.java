@@ -15,6 +15,6 @@ import java.util.List;
 public class OrderModel {
     private Long id;
     private String status;
-    private List<MenuModel> items;
+    private List<String> items;
     private float totalPrice;
 }

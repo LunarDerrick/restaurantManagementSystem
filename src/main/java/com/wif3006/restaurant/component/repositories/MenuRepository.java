@@ -8,6 +8,7 @@ import com.wif3006.restaurant.component.entities.MenuEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -17,4 +18,7 @@ import java.util.List;
 public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
     // Custom query to find menu items by category
     List<MenuEntity> findByCategory(String category);
+    
+    // for Order CRUD to fetch Menu
+    Optional<MenuEntity> findByName(String name);
 }

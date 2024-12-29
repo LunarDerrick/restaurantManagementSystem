@@ -19,5 +19,5 @@ public interface TableService {
     
     // default getter/setter for isAvailable field
     // Boolean checkAvailability();
-    Boolean assignTable();
+    // Boolean assignTable();
 }

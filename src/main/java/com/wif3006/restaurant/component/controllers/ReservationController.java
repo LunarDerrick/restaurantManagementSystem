@@ -64,12 +64,6 @@ public class ReservationController {
         return reservationService.getReservationListByFilter(filter, sortedBy, order);
     }
 
-    // GET /api/reservations/tables: View available tables
-    @GetMapping("/tables")
-    public List<TableModel> viewAvailableTables() {
-        return reservationService.viewAvailableTables();
-    }
-
     // POST /api/reservations/tables: Add a new table
     @PostMapping("/tables")
     public ResponseEntity<Boolean> addTable(@RequestBody TableModel tableModel) {
@@ -95,12 +89,6 @@ public class ReservationController {
             @RequestParam(required = false) String sortedBy,
             @RequestParam(required = false) String order) {
         return tableService.getTableListByFilter(filter, sortedBy, order);
-    }
-    
-    // PUT /api/reservations/tables/{id}/assign: Assign a table
-    @PutMapping("/tables/{id}/assign")
-    public Boolean assignTable(@PathVariable Long id) {
-        return tableService.assignTable();
     }
     
 }

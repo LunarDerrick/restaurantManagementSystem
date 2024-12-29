@@ -74,13 +74,33 @@ public class ReservationServiceImpl implements ReservationService {
                 ReservationEntity reservationEntity = reservationOptional.get();
                 reservationEntity.setCustomerName(reservationModel.getCustomerName());
                 reservationEntity.setDateTime(reservationModel.getDateTime());
-                // TODO: account for changing to new tables/same tables
+                
+                // Get the current table associated with the reservation
+                TableEntity currentTable = reservationEntity.getTable();
+                
                 Optional<TableEntity> tableOptional = tableRepository.findById(reservationModel.getTableId());
                 if (tableOptional.isPresent()) {
+                    TableEntity newTable = tableOptional.get();
+                    
+                    // Revert the availability of the current table
+                    currentTable.setIsAvailable(true);
+                    tableRepository.save(currentTable);
+                    
+                    // Check if the new table is available
+                    if (!newTable.getIsAvailable()) {
+                        throw new IllegalStateException("New table is already booked");
+                    }
+                    
+                    // Mark the new table as not available
+                    newTable.setIsAvailable(false);
+                    tableRepository.save(newTable);
+                    
+                    // Update the reservation to use the new table
                     reservationEntity.setTable(tableOptional.get());
                 } else {
                     throw new Exception("Table not found");
                 }
+                
                 reservationEntity.setPartySize(reservationModel.getPartySize());
                 reservationRepository.save(reservationEntity);
                 return Boolean.TRUE;
@@ -164,35 +184,13 @@ public class ReservationServiceImpl implements ReservationService {
         // Map ReservationEntity to ReservationModel
         return reservationEntities.stream().map(reservationEntity -> {
             ReservationModel model = new ReservationModel();
+            model.setId(reservationEntity.getId());
             model.setCustomerName(reservationEntity.getCustomerName());
             model.setDateTime(reservationEntity.getDateTime());
             model.setTableId(reservationEntity.getTable().getId()); // Assuming TableEntity has a getId() method
             model.setPartySize(reservationEntity.getPartySize());
             return model;
         }).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<TableModel> viewAvailableTables() {
-        try {
-            // Retrieve all tables
-            List<TableEntity> allTables = tableRepository.findAll();
-
-            // Filter available tables and map them to TableModel
-            return allTables.stream()
-                    .filter(TableEntity::getIsAvailable) // Check if the table is available
-                    .map(table -> {
-                        TableModel model = new TableModel();
-                        model.setId(table.getId());
-                        model.setSeatingCapacity(table.getSeatingCapacity()); // Assuming `capacity` represents seating capacity
-                        model.setIsAvailable(table.getIsAvailable());
-                        return model;
-                    })
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            // Return an empty list in case of an exception
-            return Collections.emptyList();
-        }
     }
     
 }

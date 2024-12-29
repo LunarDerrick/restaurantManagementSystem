@@ -19,6 +19,5 @@ public interface ReservationService {
     List<ReservationModel> getReservationListByFilter(String filter, String sortedBy, String order);
     // bookTable    
     // manageReservation()
-    
-    List<TableModel> viewAvailableTables();
+    // List<TableModel> viewAvailableTables();
 }

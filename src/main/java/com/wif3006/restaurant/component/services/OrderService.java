@@ -19,4 +19,5 @@ public interface OrderService {
     List<OrderModel> getOrderListByFilter(String filter, String sortedBy, String order);
     String trackOrder(Long id);
     Boolean cancelOrder(Long id);
+    void refreshOrder(Long orderId);
 }

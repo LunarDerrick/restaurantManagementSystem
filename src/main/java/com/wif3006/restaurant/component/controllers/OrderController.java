@@ -50,14 +50,14 @@ public class OrderController {
     
     //PUT /api/orders/{id}: Update an existing order.
     @PutMapping("/{id}")
-    public Boolean updateOrder(@PathVariable Long id, @RequestBody OrderModel orderModel) {
-        return orderService.updateOrder(id, orderModel);
+    public ResponseEntity<Boolean> updateOrder(@PathVariable Long id, @RequestBody OrderModel orderModel) {
+        return ResponseEntity.ok(orderService.updateOrder(id, orderModel));
     }
     
     //DELETE /api/orders/{id}: Delete an order.
     @DeleteMapping("/{id}")
-    public Boolean deleteOrder(@PathVariable Long id) {
-        return orderService.deleteOrder(id);
+    public ResponseEntity<Boolean> deleteOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.deleteOrder(id));
     }
 
     //GET /api/orders: Get a list of orders, optionally with filters.
@@ -77,8 +77,8 @@ public class OrderController {
 
     // Endpoint to cancel an order
     @PutMapping("/{id}/cancel")
-    public Boolean cancelOrder(@PathVariable Long id) {
-        return orderService.cancelOrder(id);
+    public ResponseEntity<Boolean> cancelOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 
     //POST /api/orders/menu: Add a menu item.
