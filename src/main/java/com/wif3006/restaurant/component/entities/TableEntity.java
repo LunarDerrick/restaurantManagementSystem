@@ -13,16 +13,17 @@ import lombok.Data;
  */
 @Entity
 @Data
-@Table(name="tables")
+@Table(name = "tables")
 public class TableEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    
+
     @Column(name = "seating_capacity", nullable = false)
     private int seatingCapacity;
-    
+
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable;
 }

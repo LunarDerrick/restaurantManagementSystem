@@ -14,20 +14,21 @@ import lombok.Data;
  */
 @Entity
 @Data
-@Table(name="orders")
+@Table(name = "orders")
 public class OrderEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    
+
     @Column(name = "status", nullable = false)
     private String status;
-    
-    @Column(name = "items", nullable = true) // Store as a single column in the table
-    @Convert(converter = StringListConverter.class) // Use the custom converter
-    private List<String> items; // Store menu names as a single string
-    
+
+    @Column(name = "items", nullable = true)
+    @Convert(converter = StringListConverter.class) // custom converter
+    private List<String> items; // save only menu "name"
+
     @Column(name = "total_price", nullable = false)
     private float totalPrice;
 }

@@ -24,7 +24,7 @@ public class MenuServiceImpl implements MenuService {
 
     @Autowired
     private MenuRepository menuRepository;
-    
+
     @Override
     public Boolean addMenu(MenuModel menuModel) {
         try {
@@ -33,7 +33,7 @@ public class MenuServiceImpl implements MenuService {
             menuEntity.setDescription(menuModel.getDescription());
             menuEntity.setPrice(menuModel.getPrice());
             menuEntity.setCategory(menuModel.getCategory());
-            menuRepository.save(menuEntity); 
+            menuRepository.save(menuEntity);
             return Boolean.TRUE;
         } catch (Exception e) {
             System.err.println("Error adding menu: " + e.getMessage());
@@ -79,23 +79,23 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public List<MenuModel> getMenuListByFilter(String filter, String sortedBy, String order) {
+    public List<MenuModel> getMenuListByFilter(String category, String sortedBy, String order) {
         try {
             List<MenuEntity> menuEntities;
-            
+
             // Example filtering by category
-            if (filter != null && !filter.isEmpty()) {
-                menuEntities = menuRepository.findByCategory(filter);
+            if (category != null && !category.isEmpty()) {
+                menuEntities = menuRepository.findByCategory(category);
             } else {
                 menuEntities = menuRepository.findAll();
             }
 
-            // Sorting logic (you can add dynamic sorting based on `sortedBy` and `order`)
-            if ("desc".equalsIgnoreCase(order)) {
-                menuEntities.sort((menu1, menu2) -> menu2.getName().compareTo(menu1.getName())); // Example sort by name
-            } else {
-                menuEntities.sort((menu1, menu2) -> menu1.getName().compareTo(menu2.getName())); // Example sort by name
-            }
+//            // Sorting logic (you can add dynamic sorting based on `sortedBy` and `order`)
+//            if ("desc".equalsIgnoreCase(order)) {
+//                menuEntities.sort((menu1, menu2) -> menu2.getName().compareTo(menu1.getName())); // Example sort by name
+//            } else {
+//                menuEntities.sort((menu1, menu2) -> menu1.getName().compareTo(menu2.getName())); // Example sort by name
+//            }
 
             // Convert List<MenuEntity> to List<MenuModel>
             return menuEntities.stream().map(menuEntity -> {
@@ -112,5 +112,5 @@ public class MenuServiceImpl implements MenuService {
             return null; // Return null or an empty list as appropriate for error handling
         }
     }
-    
+
 }

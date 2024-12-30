@@ -15,6 +15,7 @@ import java.util.List;
  */
 @Repository
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
+
     // Custom query to find reservations for a specific table or time
     List<ReservationEntity> findByTableId(Long tableId);
 }

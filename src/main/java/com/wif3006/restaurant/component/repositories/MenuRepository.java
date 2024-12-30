@@ -16,9 +16,10 @@ import java.util.Optional;
  */
 @Repository
 public interface MenuRepository extends JpaRepository<MenuEntity, Long> {
+
     // Custom query to find menu items by category
     List<MenuEntity> findByCategory(String category);
-    
+
     // for Order CRUD to fetch Menu
     Optional<MenuEntity> findByName(String name);
 }

@@ -12,9 +12,13 @@ import java.util.List;
  * @author derri
  */
 public interface MenuService {
+
     Boolean addMenu(MenuModel menuModel);
+
     Boolean updateMenu(Long id, MenuModel menuModel);
+
     Boolean deleteMenu(Long id);
+
+    // getMenu(), getCategory()
     List<MenuModel> getMenuListByFilter(String filter, String sortedBy, String order);
-    // getCategory()
 }

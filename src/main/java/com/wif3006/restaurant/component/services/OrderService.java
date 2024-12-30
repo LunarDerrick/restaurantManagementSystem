@@ -12,12 +12,17 @@ import java.util.List;
  * @author derri
  */
 public interface OrderService {
+
+    // placeOrder()
     Boolean addOrder(OrderModel orderModel);
-    // placeOrder() = addOrder()
+
     Boolean updateOrder(Long id, OrderModel orderModel);
+
     Boolean deleteOrder(Long id);
+
     List<OrderModel> getOrderListByFilter(String filter, String sortedBy, String order);
+
     String trackOrder(Long id);
+
     Boolean cancelOrder(Long id);
-    void refreshOrder(Long orderId);
 }

@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
-import javax.persistence.EntityManager;
 
 /**
  *
@@ -29,37 +27,53 @@ import javax.persistence.EntityManager;
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
-    private OrderRepository orderRepository;
-    
-    @Autowired
     private MenuRepository menuRepository;
-    
+
     @Autowired
-    private EntityManager entityManager;
-    
+    private OrderRepository orderRepository;
+
+    private final InventoryServiceImpl inventoryService;
+
+    // Constructor injection of InventoryServiceImpl
+    @Autowired
+    public OrderServiceImpl(InventoryServiceImpl inventoryService) {
+        this.inventoryService = inventoryService;
+    }
+
     @Override
     public Boolean addOrder(OrderModel orderModel) {
         try {
+            // Check if stock is sufficient
+            if (!inventoryService.isStockSufficient(orderModel)) {
+                System.out.println("\nInsufficient stock to place order.\n");
+                return Boolean.FALSE;
+            }
+
             // Fetch menu entities based on item names in the order model
             List<MenuEntity> menuEntities = orderModel.getItems().stream()
-                .map(itemName -> menuRepository.findByName(itemName) // Find MenuEntity by name
-                    .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName))) 
-                .collect(Collectors.toList());
+                    .map(itemName -> menuRepository.findByName(itemName)
+                    .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName)))
+                    .collect(Collectors.toList());
 
             // Calculate the total price
             float totalPrice = menuEntities.stream()
-                .map(MenuEntity::getPrice)
-                .reduce(0f, Float::sum);
-            
+                    .map(MenuEntity::getPrice)
+                    .reduce(0f, Float::sum);
+
             OrderEntity orderEntity = new OrderEntity();
-            orderEntity.setStatus("placed"); // fixed starting status
+            orderEntity.setStatus("placed"); // fixed initial status
             orderEntity.setItems(orderModel.getItems());
             orderEntity.setTotalPrice(totalPrice);
             orderRepository.save(orderEntity);
-            
+
+            // Reduce stock after the order is saved
+            // pass null because no need to compare a brand new order
+            inventoryService.reduceStockOnOrder(orderModel, null);
+            System.out.println(inventoryService.alertLowStock());
+
             // Initiate the asynchronous status update after saving the order
             updateOrderStatusAfterDelay(orderEntity.getId());
-        
+
             return Boolean.TRUE;
         } catch (Exception e) {
             System.err.println("Error adding order: " + e.getMessage());
@@ -73,20 +87,29 @@ public class OrderServiceImpl implements OrderService {
             Optional<OrderEntity> optionalOrder = orderRepository.findById(id);
             if (optionalOrder.isPresent()) {
                 OrderEntity orderEntity = optionalOrder.get();
-                
+
+                // Check if stock is sufficient
+                if (!inventoryService.isStockSufficient(orderModel)) {
+                    System.out.println("\nInsufficient stock to place order.\n");
+                    return Boolean.FALSE;
+                }
+
                 // Fetch menu entities based on item names in the order model
                 List<MenuEntity> menuEntities = orderModel.getItems().stream()
-                    .map(itemName -> menuRepository.findByName(itemName) // Find MenuEntity by name
-                        .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName))) 
-                    .collect(Collectors.toList());
+                        .map(itemName -> menuRepository.findByName(itemName)
+                        .orElseThrow(() -> new IllegalArgumentException("Menu item not found: " + itemName)))
+                        .collect(Collectors.toList());
 
                 // Calculate the total price
                 float totalPrice = menuEntities.stream()
-                    .map(MenuEntity::getPrice)
-                    .reduce(0f, Float::sum);
-                
-                // Update the order with the new status, items, and total price
-                orderEntity.setItems(orderModel.getItems());  // Assuming items are a list of names
+                        .map(MenuEntity::getPrice)
+                        .reduce(0f, Float::sum);
+
+                // compare & reduce stock before saving
+                inventoryService.reduceStockOnOrder(orderModel, orderEntity.getId());
+                System.out.println(inventoryService.alertLowStock());
+
+                orderEntity.setItems(orderModel.getItems());
                 orderEntity.setTotalPrice(totalPrice);
                 orderRepository.save(orderEntity);
                 return Boolean.TRUE;
@@ -118,22 +141,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderModel> getOrderListByFilter(String filter, String sortedBy, String order) {
         List<OrderEntity> orderEntities;
-        
-        if (filter != null && !filter.isEmpty()) {
-            orderEntities = orderRepository.findByStatus(filter);
-        } else {
-            orderEntities = orderRepository.findAll();
-        }
 
-        // Example sort by status
-        if ("desc".equalsIgnoreCase(order)) {
-            orderEntities.sort((menu1, menu2) -> menu2.getStatus().compareTo(menu1.getStatus())); 
-        } else {
-            orderEntities.sort((menu1, menu2) -> menu1.getStatus().compareTo(menu2.getStatus())); 
-        }
-                    
+//        if (filter != null && !filter.isEmpty()) {
+//            orderEntities = orderRepository.findByStatus(filter);
+//        } else {
+        orderEntities = orderRepository.findAll();
+//        }
+//
+//        // Example sort by status
+//        if ("desc".equalsIgnoreCase(order)) {
+//            orderEntities.sort((menu1, menu2) -> menu2.getStatus().compareTo(menu1.getStatus()));
+//        } else {
+//            orderEntities.sort((menu1, menu2) -> menu1.getStatus().compareTo(menu2.getStatus()));
+//        }
+
         return orderEntities.stream().map(orderEntity -> {
-            // Explicitly map MenuEntity to MenuModel
             OrderModel model = new OrderModel();
             model.setId(orderEntity.getId());
             model.setStatus(orderEntity.getStatus());
@@ -148,11 +170,10 @@ public class OrderServiceImpl implements OrderService {
         try {
             OrderEntity orderEntity = orderRepository.findById(id).orElseThrow();
 
-            // Return the status of the entire order as a string
             return orderEntity.getStatus();
         } catch (Exception e) {
-            // Handle exceptions (e.g., order not found)
-            return "Order not found or error occurred";
+            System.err.println("Error tracking order: " + e.getMessage());
+            throw new IllegalArgumentException("Fail to track order");
         }
     }
 
@@ -161,13 +182,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             OrderEntity orderEntity = orderRepository.findById(id).orElseThrow();
 
-            // Set the order status to "Cancelled"
             orderEntity.setStatus("cancelled");
-
-            // Optionally, you can also cancel individual items if needed
-            // orderEntity.getItems().forEach(item -> item.setStatus("Cancelled"));
-
-            // Save the updated order entity
             orderRepository.save(orderEntity);
             return Boolean.TRUE;
         } catch (Exception e) {
@@ -175,8 +190,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Fail to cancel order");
         }
     }
-    
-    @Transactional
+
     @Async
     private CompletableFuture<Void> updateOrderStatusAfterDelay(Long orderId) {
         try {
@@ -184,24 +198,22 @@ public class OrderServiceImpl implements OrderService {
             List<String> statuses = List.of("placed", "preparing", "delivering", "served");
 
             for (String nextStatus : statuses) {
-                // Fetch the current order entity from the database
-                OrderEntity orderEntity = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new RuntimeException("Order not found"));
+                String orderStatus = orderRepository.getOrderStatusById(orderId);
 
-                // Explicitly refresh the entity to ensure the latest state
-                orderRepository.refreshOrder(orderId);
-            
                 // Check if the status is "cancelled"
-                if ("cancelled".equalsIgnoreCase(orderEntity.getStatus())) {
+                if ("cancelled".equalsIgnoreCase(orderStatus)) {
                     break; // Exit the loop if the order is cancelled
                 }
+
+                OrderEntity orderEntity = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
 
                 // Update the status to the next progression
                 orderEntity.setStatus(nextStatus);
                 orderRepository.save(orderEntity);
 
                 // Simulate delay before moving to the next status
-                Thread.sleep(10000); // 10 seconds between each status update
+                Thread.sleep(10000);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Restore interrupted state
@@ -213,11 +225,4 @@ public class OrderServiceImpl implements OrderService {
         return CompletableFuture.completedFuture(null);
     }
     
-    @Override
-    @Transactional
-    public void refreshOrder(Long orderId) {
-        OrderEntity orderEntity = orderRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Order not found"));
-        entityManager.refresh(orderEntity); // Refreshes the entity state from the database
-    }
 }

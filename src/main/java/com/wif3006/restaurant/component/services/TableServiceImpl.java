@@ -23,7 +23,7 @@ public class TableServiceImpl implements TableService {
 
     @Autowired
     private TableRepository tableRepository;
-        
+
     @Override
     public Boolean addTable(TableModel tableModel) {
         try {
@@ -79,25 +79,25 @@ public class TableServiceImpl implements TableService {
         try {
             List<TableEntity> tableEntities;
 
-            // Filter logic (e.g., based on availability or seating capacity)
-            if ("available".equalsIgnoreCase(filter)) {
-                tableEntities = tableRepository.findAll().stream()
-                        .filter(TableEntity::getIsAvailable)
-                        .toList();
-            } else if ("unavailable".equalsIgnoreCase(filter)) {
-                tableEntities = tableRepository.findAll().stream()
-                        .filter(table -> !table.getIsAvailable())
-                        .toList();
-            } else {
+//            // Filter logic (e.g., based on availability or seating capacity)
+//            if ("available".equalsIgnoreCase(filter)) {
+//                tableEntities = tableRepository.findAll().stream()
+//                        .filter(TableEntity::getIsAvailable)
+//                        .toList();
+//            } else if ("unavailable".equalsIgnoreCase(filter)) {
+//                tableEntities = tableRepository.findAll().stream()
+//                        .filter(table -> !table.getIsAvailable())
+//                        .toList();
+//            } else {
                 tableEntities = tableRepository.findAll();
-            }
-
-            // Sorting logic
-            if ("desc".equalsIgnoreCase(order)) {
-                tableEntities.sort((t1, t2) -> Integer.compare(t2.getSeatingCapacity(), t1.getSeatingCapacity()));
-            } else {
-                tableEntities.sort((t1, t2) -> Integer.compare(t1.getSeatingCapacity(), t2.getSeatingCapacity()));
-            }
+//            }
+//
+//            // Sorting logic
+//            if ("desc".equalsIgnoreCase(order)) {
+//                tableEntities.sort((t1, t2) -> Integer.compare(t2.getSeatingCapacity(), t1.getSeatingCapacity()));
+//            } else {
+//                tableEntities.sort((t1, t2) -> Integer.compare(t1.getSeatingCapacity(), t2.getSeatingCapacity()));
+//            }
 
             // Mapping to TableModel
             return tableEntities.stream().map(entity -> {
@@ -108,8 +108,8 @@ public class TableServiceImpl implements TableService {
                 return model;
             }).toList();
         } catch (Exception e) {
-            return List.of(); // Return an empty list in case of an exception
+            return List.of();
         }
     }
-    
+
 }

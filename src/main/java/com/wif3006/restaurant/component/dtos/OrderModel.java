@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Data
 public class OrderModel {
+
     private Long id;
     private String status;
     private List<String> items;

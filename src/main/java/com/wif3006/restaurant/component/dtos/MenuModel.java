@@ -12,6 +12,7 @@ import lombok.Data;
  */
 @Data
 public class MenuModel {
+
     private Long id;
     private String name;
     private String description;

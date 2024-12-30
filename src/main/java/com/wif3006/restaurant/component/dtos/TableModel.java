@@ -12,6 +12,7 @@ import lombok.Data;
  */
 @Data
 public class TableModel {
+
     private Long id;
     private int seatingCapacity;
     private Boolean isAvailable;

@@ -30,13 +30,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
-    
+
     @Autowired
     private ReservationService reservationService;
-    
+
     @Autowired
     private TableService tableService;
-    
+
     // POST /api/reservations: Add a new reservation
     @PostMapping
     public ResponseEntity<Boolean> addReservation(@RequestBody ReservationModel reservationModel) {
@@ -54,7 +54,7 @@ public class ReservationController {
     public ResponseEntity<Boolean> deleteReservation(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.deleteReservation(id));
     }
-    
+
     // GET /api/reservations: Get a list of reservations, optionally with filters
     @GetMapping
     public List<ReservationModel> getReservationListByFilter(
@@ -90,5 +90,5 @@ public class ReservationController {
             @RequestParam(required = false) String order) {
         return tableService.getTableListByFilter(filter, sortedBy, order);
     }
-    
+
 }

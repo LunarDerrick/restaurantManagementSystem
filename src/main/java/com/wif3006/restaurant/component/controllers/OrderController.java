@@ -32,28 +32,28 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-    
+
     @Autowired
-    private OrderService orderService;
-    
+    private InventoryService inventoryService;
+
     @Autowired
     private MenuService menuService;
 
     @Autowired
-    private InventoryService inventoryService;
-    
+    private OrderService orderService;
+
     //POST /api/orders: Add a new order.
     @PostMapping
     public ResponseEntity<Boolean> addOrder(@RequestBody OrderModel orderModel) {
         return ResponseEntity.ok(orderService.addOrder(orderModel));
     }
-    
+
     //PUT /api/orders/{id}: Update an existing order.
     @PutMapping("/{id}")
     public ResponseEntity<Boolean> updateOrder(@PathVariable Long id, @RequestBody OrderModel orderModel) {
         return ResponseEntity.ok(orderService.updateOrder(id, orderModel));
     }
-    
+
     //DELETE /api/orders/{id}: Delete an order.
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteOrder(@PathVariable Long id) {
@@ -68,14 +68,14 @@ public class OrderController {
             @RequestParam(required = false) String order) {
         return orderService.getOrderListByFilter(filter, sortedBy, order);
     }
-    
-    // Endpoint to track the status of an order
+
+    //GET /api/orders/{id}/track: Get the "status" value of the selected order.
     @GetMapping("/{id}/track")
     public String trackOrder(@PathVariable Long id) {
         return orderService.trackOrder(id);
     }
 
-    // Endpoint to cancel an order
+    //PUT /api/orders/{id}/cancel: Update the "status" value of the selected order to "cancelled".
     @PutMapping("/{id}/cancel")
     public ResponseEntity<Boolean> cancelOrder(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.cancelOrder(id));
@@ -83,24 +83,23 @@ public class OrderController {
 
     //POST /api/orders/menu: Add a menu item.
     @PostMapping("/menu")
-    public ResponseEntity<Boolean> addMenu(@RequestBody MenuModel menuModel) {    
+    public ResponseEntity<Boolean> addMenu(@RequestBody MenuModel menuModel) {
         return ResponseEntity.ok(menuService.addMenu(menuModel));
     }
-    
+
     //PUT /api/orders/menu/{id}: Update a menu item.
     @PutMapping("/menu/{id}")
     public ResponseEntity<Boolean> updateMenu(@PathVariable Long id, @RequestBody MenuModel menuModel) {
         return ResponseEntity.ok(menuService.updateMenu(id, menuModel));
     }
-    
+
     //DELETE /api/orders/menu/{id}: Delete a menu item.
     @DeleteMapping("/menu/{id}")
     public ResponseEntity<Boolean> deleteMenu(@PathVariable Long id) {
         return ResponseEntity.ok(menuService.deleteMenu(id));
     }
-    
+
     //GET /api/orders/menu: Get a list of menu items.
-    // Endpoint to get the list of menu items filtered by category, with sorting
     @GetMapping("/menu")
     public List<MenuModel> getMenuListByFilter(
             @RequestParam(required = false) String category,
@@ -108,25 +107,25 @@ public class OrderController {
             @RequestParam(required = false) String order) {
         return menuService.getMenuListByFilter(category, sortedBy, order);
     }
-    
+
     //POST /api/orders/inventory: Add inventory items.
     @PostMapping("/inventory")
     public ResponseEntity<Boolean> addInventory(@RequestBody InventoryModel inventoryModel) {
         return ResponseEntity.ok(inventoryService.addInventory(inventoryModel));
     }
-    
+
     //PUT /api/orders/inventory/{id}: Update inventory items.
     @PutMapping("/inventory/{id}")
     public ResponseEntity<Boolean> updateInventory(@PathVariable Long id, @RequestBody InventoryModel inventoryModel) {
         return ResponseEntity.ok(inventoryService.updateInventory(id, inventoryModel));
     }
-    
+
     //DELETE /api/orders/inventory/{id}: Delete inventory items.
     @DeleteMapping("/inventory/{id}")
     public ResponseEntity<Boolean> deleteInventory(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.deleteInventory(id));
     }
-    
+
     //GET /api/orders/inventory: Get a list of inventory items.
     @GetMapping("/inventory")
     public List<InventoryModel> getInventoryListByFilter(
@@ -135,4 +134,5 @@ public class OrderController {
             @RequestParam(required = false) String order) {
         return inventoryService.getInventoryListByFilter(filter, sortedBy, order);
     }
+
 }

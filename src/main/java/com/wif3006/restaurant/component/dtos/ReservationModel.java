@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 public class ReservationModel {
+
     private Long id;
     private String customerName;
     private LocalDateTime dateTime;

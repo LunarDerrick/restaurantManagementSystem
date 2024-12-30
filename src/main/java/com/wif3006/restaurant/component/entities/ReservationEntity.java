@@ -14,23 +14,24 @@ import lombok.Data;
  */
 @Entity
 @Data
-@Table(name="reservations")
+@Table(name = "reservations")
 public class ReservationEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    
+
     @Column(name = "customer_name", nullable = false)
     private String customerName;
-    
+
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
-    
+
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false) // Foreign key in reservations table
     private TableEntity table; // References the booked table
-    
+
     @Column(name = "party_size", nullable = false)
     private int partySize;
 }

@@ -20,10 +20,8 @@ public class SpringbootApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
         SpringApplication.run(SpringbootApplication.class, args);
-        
         System.out.println("\nWELCOME TO RESTAURANT MANAGEMENT SYSTEM");
     }
-    
+
 }
