@@ -83,7 +83,7 @@ public class ReservationController {
     }
 
     // GET /api/reservations/tables: Get a list of tables, optionally with filters
-    @GetMapping("/tables/filter")
+    @GetMapping("/tables")
     public List<TableModel> getTableListByFilter(
             @RequestParam(required = false) String filter,
             @RequestParam(required = false) String sortedBy,
